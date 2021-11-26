@@ -58,7 +58,7 @@ pipeline {
 
     stage('Build') {
       steps {
-        container('maven') {
+        // container('maven') {
           script {
             echo '********Maven Build step********'
 
@@ -66,7 +66,7 @@ pipeline {
                               echo "Foo bar Maven"
                           '''
           }
-        }
+        // }
       }
     }
   }
