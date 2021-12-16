@@ -1,17 +1,3 @@
-import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
-
-def call(boolean condition, body) {
-    def config = [:]
-    body.resolveStrategy = Closure.OWNER_FIRST
-    body.delegate = config
-
-    if (condition) {
-        body()
-    } else {
-        Utils.markStageSkippedForConditional(STAGE_NAME)
-    }
-}
-
 
 pipeline {
   agent any
@@ -21,67 +7,53 @@ pipeline {
       steps {
         script {
           echo '********Set Deployment Parameters********'
-          echo '--currentBuild---'
-          println(currentBuild)
-          echo '--rawbuild---'
-          println(currentBuild.rawBuild)
           properties([
-                            parameters([
-                            [$class: 'ChoiceParameter',
-                                choiceType: 'PT_SINGLE_SELECT',
-                                description: 'Select the Environemnt for Deployment',
-                                filterLength: 1,
-                                filterable: false,
-                                name: 'TARGET_ENVIRONMENT',
-                                randomName: 'choice-parameter-6860532452500',
-                                script: [$class: 'GroovyScript',
-                                    fallbackScript: [
-                                        classpath: [],
-                                        sandbox: false,
-                                        script: 'return ["Could not get The environemnts"]'
-                                    ], script: [
-                                        classpath: [],
-                                        sandbox: false,
-                                      script: "return ${targetEnvNames}"
-                                    ]
-                                ]
-                            ],
-                            [$class: 'ChoiceParameter',
-                                choiceType: 'PT_SINGLE_SELECT',
-                                description: 'Select the Deployment runtime',
-                                filterLength: 1,
-                                filterable: false,
-                                name: 'TARGET_RUNTIME',
-                                randomName: 'choice-parameter-6860532452501',
-                                script: [$class: 'GroovyScript',
-                                    fallbackScript: [
-                                        classpath: [],
-                                        sandbox: false,
-                                        script: 'return ["No Runtime Available"]'
-                                    ], script: [
-                                        classpath: [],
-                                        sandbox: false,
-                                        script: 'return [\'cloudhub\',\'hybrid\',]'
-                                    ]
-                                ]
+                    parameters([
+                    [$class: 'ChoiceParameter',
+                        choiceType: 'PT_SINGLE_SELECT',
+                        description: 'Select the Environment for Deployment',
+                        filterLength: 1,
+                        filterable: false,
+                        name: 'TARGET_ENVIRONMENT',
+                        randomName: 'choice-parameter-6860532452500',
+                        script: [$class: 'GroovyScript',
+                            fallbackScript: [
+                                classpath: [],
+                                sandbox: true,
+                                script: 'return ["Could not get The environments"]'
+                            ], script: [
+                                classpath: [],
+                                sandbox: true,
+                                  script: """
+                                  try {
+                                    Date latestdate = new Date()
+                                    return [
+                                      latestdate.getTime().toString()
+                                      ]
+                                  }
+                                  catch(Exception e) {
+                                    return [e.dump()]
+                                  }
+                                  """
                             ]
-                        ])
-                    ])
+                        ]
+                    ]
+
+            ])
+          ])
         }
       }
     }
 
     stage('Build') {
       steps {
-        // container('maven') {
-          script {
-            echo '********Maven Build step********'
+        script {
+          echo '********Maven Build step********'
 
-              sh '''
-                              echo "Foo bar Maven"
-                          '''
-          }
-        // }
+            sh '''
+                  echo "Maven"
+               '''
+        }
       }
     }
   }
