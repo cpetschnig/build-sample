@@ -14,35 +14,29 @@ pipeline {
           // result = code2.mymethod()
           // echo result[0]
 
-def code = sprintf("""
-def getArtifactList(items) {
-  def artifactData = [:]
-  items.each { entry ->
-      def tempMap = [:]
-      tempMap['artifact_name'] = entry.name
-      def assetJar = entry.assets[0]
-      def appJarPath = assetJar.downloadUrl
-      def sepPosStart = appJarPath.lastIndexOf('/')
-      def sepPosEnd = appJarPath.lastIndexOf('.jar')
-      def appName = appJarPath.substring(sepPosStart + 1, sepPosEnd)
-      tempMap['path'] = appJarPath
-      artifactData[appName] = tempMap
-  }
-  return artifactData
-}
+def code = """
+import groovy.json.JsonSlurper
+
+HttpURLConnection connection;
 
 try {
-  if ("%s" in %s) {
-    choices = ["Apple","Banana","Cherry"]
-  } else {
-    choices = ["Amaranth","Beet","Cabbage"]
-  }
-  return choices
-  }
+  URL url = new URL('https://jsonplaceholder.typicode.com/posts/1')
+
+  connection = url.openConnection()
+  connection.setDoOutput(true)
+  def text = connection.inputStream.text
+
+  def json = new JsonSlurper().parseText(text)
+
+  return [json.title]
+}
 catch (Exception e) {
   return [e.dump()]
 }
-""", "blah", '["blub"]')
+finally {
+  connection.disconnect()
+}
+"""
 
           properties([
                     parameters([
@@ -62,33 +56,6 @@ catch (Exception e) {
                                 classpath: [],
                                 sandbox: false,
                                   script: code
-
-                                  // 'def code = load "./myscript.groovy"; return [code.dump()]'
-                                    // result = code.mymethod()
-                                    // return result
-
-                                  // HttpURLConnection connection;
-
-                                  // //sh(script: 'echo `date`, 11 >> /tmp/script.log')
-
-                                  // try {
-
-                                  //   URL url = new URL('https://jsonplaceholder.typicode.com/posts/1')
-
-                                  //   def url = 'https://jsonplaceholder.typicode.com/posts/1'
-                                  //   def urlFinal = new StringBuilder(url)
-                                  //   def response =  sh(returnStdout: true, script: 'curl -s ' + urlFinal).trim()
-                                  //   def jsonSlurper1 = new JsonSlurper()
-                                  //   def json = jsonSlurper1.parseText(response)
-
-                                  //   return [
-                                  //     json.title
-                                  //     ]
-                                  // }
-                                  // catch(Exception e) {
-                                  //   return [e.dump()]
-                                  // }
-                                  // """
                             ]
                         ]
                     ]
