@@ -6,7 +6,6 @@ try {
   URL url = new URL('https://jsonplaceholder.typicode.com/posts/1')
 
   connection = url.openConnection()
-  connection.setDoOutput(true)
   def text = connection.inputStream.text
 
   def json = new JsonSlurper().parseText(text)
