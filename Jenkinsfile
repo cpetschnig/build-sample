@@ -14,6 +14,10 @@ pipeline {
           // result = code2.mymethod()
           // echo result[0]
 
+// def codeFromFile = readFile.readFileString("./myscript.groovy")
+def codeFromFile = readFile("./myscript.groovy")
+echo codeFromFile
+
 def code = """
 import groovy.json.JsonSlurper
 
@@ -55,7 +59,7 @@ finally {
                             ], script: [
                                 classpath: [],
                                 sandbox: false,
-                                  script: code
+                                  script: codeFromFile
                             ]
                         ]
                     ]

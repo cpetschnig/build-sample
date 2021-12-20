@@ -1,11 +1,21 @@
-def mymethod() {
-  try {
-    Date latestdate = new Date()
-    return [latestdate.getTime().toString()]
-  }
-  catch (Exception e) {
-    return [e.dump()]
-  }
-}
+import groovy.json.JsonSlurper
 
-return this
+HttpURLConnection connection;
+
+try {
+  URL url = new URL('https://jsonplaceholder.typicode.com/posts/1')
+
+  connection = url.openConnection()
+  connection.setDoOutput(true)
+  def text = connection.inputStream.text
+
+  def json = new JsonSlurper().parseText(text)
+
+  return [json.title]
+}
+catch (Exception e) {
+  return [e.dump()]
+}
+finally {
+  connection.disconnect()
+}
